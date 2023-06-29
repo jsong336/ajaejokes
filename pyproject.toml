@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dadjokes"
+name = "ajaejokes"
 version = "0.1.0"
 description = ""
 authors = ["Jeongwon Song <jeongwon412@gmail.com>"]
