@@ -19,13 +19,13 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v2 
         with:
-          python-version: ${{ PYTHON_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
       
       - name: Cache poetry install
         uses: actions/cache@v2
         with:
           path: ~/.local
-          key: poetry-${{ POETRY_VERSION }}-0
+          key: poetry-${{ env.POETRY_VERSION }}-0
       
       - name: Setup Poetry
         uses: snok/install-poetry@v1
