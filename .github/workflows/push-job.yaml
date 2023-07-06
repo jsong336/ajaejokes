@@ -1,8 +1,9 @@
-name: master CI/CD workflow 
+name: CI/CD on push 
 on: 
   push: 
     branches:
     - master
+    - development
 env:
   POETRY_VERSION: 1.5.1
   PYTHON_VERSION: '3.10'
@@ -63,13 +64,15 @@ jobs:
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
           
       - name: Install Python Dependencies
-        run: poetry install --no-interaction --no-root
         if: steps.cache-python-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
       
       - name: Build Package
+        if: github.ref == 'ref/head/master'
         run: poetry build
       
       - name: Publish Package
+        if: github.ref == 'ref/head/master'
         run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
           poetry publish
