@@ -45,7 +45,17 @@ jobs:
       - run: poetry install --no-interaction --no-root
         if: steps.cache-python-dependencies.outputs.cache-hit != 'true'
       
-      - run: poetry run pytest
+      - name: Build Package
+        run: poetry build
+      
+      - name: Publish package
+        run: |
+          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+          poetry publish
+        
+        
+      
+    
       
 
         
