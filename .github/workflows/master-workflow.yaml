@@ -42,7 +42,7 @@ jobs:
           key: python-depedencies-${{ hashFiles('**/poetry.lock') }}
       
       - run: poetry install --no-interactions --no-root
-        if: steps.cache-python-dependencies.outputs.cache-hit != "true"
+        if: steps.cache-python-dependencies.outputs.cache-hit != 'true'
       
       - run: poetry install --no-interaction 
       
