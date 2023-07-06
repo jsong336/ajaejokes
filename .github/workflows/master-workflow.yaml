@@ -16,7 +16,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Setup python
+      - id: setup-python
+        name: Setup python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
@@ -39,7 +40,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./w2/poetry.lock, */poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('*/poetry.lock') }}
           
       - run: poetry install --no-interaction --no-root
         if: steps.cache-python-dependencies.outputs.cache-hit != 'true'
