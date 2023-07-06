@@ -41,7 +41,7 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./w2/poetry.lock, */poetry.lock') }}
           
-      - run: poetry install --no-interactions --no-root
+      - run: poetry install --no-interaction --no-root
         if: steps.cache-python-dependencies.outputs.cache-hit != 'true'
       
       - run: poetry run pytest
