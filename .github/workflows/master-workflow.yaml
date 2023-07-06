@@ -2,9 +2,7 @@ name: master CI/CD workflow
 on: 
   push: 
     branches:
-     - feat/implement-ci-cd-pipeline
-#       - master
-
+    - master
 env:
   POETRY_VERSION: 1.5.1
   PYTHON_VERSION: '3.10'
@@ -27,7 +25,7 @@ jobs:
           # Check if current version = latestVersion first. (i.e. more common mistakes)
           if [[ $latestVersion == $currentVersion ]]; then 
             echo "$currentVersion is not upgraded"
-            exit 0
+            exit 1
           fi
           
           releases=$(curl -s https://pypi.org/pypi/ajaejokes/json | jq -cr '.releases | keys | .[]')
