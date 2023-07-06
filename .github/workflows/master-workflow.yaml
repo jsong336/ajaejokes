@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest 
     steps:
       - name: Checkout
-        uses: actions/checkout@2
+        uses: actions/checkout@3
       
       - name: Setup python
-        uses: actions/setup-python@v2 
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
@@ -39,12 +39,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv
-          key: python-depedencies-${{ hashFiles('**/poetry.lock') }}
-      
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./w2/poetry.lock, */poetry.lock') }}
+          
       - run: poetry install --no-interactions --no-root
         if: steps.cache-python-dependencies.outputs.cache-hit != 'true'
-      
-      - run: poetry install --no-interaction 
       
       - run: poetry run pytest
       
