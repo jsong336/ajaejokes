@@ -1,4 +1,53 @@
 name: master CI/CD workflow 
 on: 
   push: 
-    
+    branches:
+      # - master
+      - feat/implement-ci-cd-pipeline
+  pull_request:
+
+env:
+  POETRY_VERSION: 1.5.1
+  PYTHON_VERSION: 3.10.0
+jobs:
+  release:
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@2
+      
+      - name: Setup python
+        uses: actions/setup-python@v2 
+        with:
+          python-version: ${{ PYTHON_VERSION }}
+      
+      - name: Cache poetry install
+        uses: actions/cache@v2
+        with:
+          path: ~/.local
+          key: poetry-${{ POETRY_VERSION }}-0
+      
+      - name: Setup Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - id: cache-python-dependencies
+        name: Cache Python Dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: python-depedencies-${{ hashFiles('**/poetry.lock') }}
+      
+      - run: poetry install --no-interactions --no-root
+        if: steps.cache-python-dependencies.outputs.cache-hit != "true"
+      
+      - run: poetry install --no-interaction 
+      
+      - run: poetry run pytest
+      
+
+        
+  
