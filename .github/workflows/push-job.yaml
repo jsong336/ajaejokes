@@ -16,11 +16,11 @@ jobs:
         uses: actions/checkout@v3
       
       - run: | 
-          echo $(git branch) 
           git config --local user.name "Github Action"
-          currentVersion=$(cat pyproject.toml| grep -oP 'version = "\K.*?(?=")')
-          git tag $currentVersion
-          git push --tag
+          tag=$(cat pyproject.toml| grep -oP 'version = "\K.*?(?=")')
+          gh release create $tag \
+            --note "this is test release" \
+            --title "Release: $tag"
           
 #       - name: Check Version
 #         run: |
