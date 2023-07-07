@@ -4,6 +4,7 @@ on:
     branches:
     - master
     - development
+    - feat/implement-ci-cd-pipeline
 env:
   POETRY_VERSION: 1.5.1
   PYTHON_VERSION: '3.10'
@@ -14,65 +15,72 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Check Version
-        run: |
-          latestVersion=$(curl -s https://pypi.org/pypi/ajaejokes/json | jq -r '.info.version')
+      - run: | 
+          echo $(git branch) 
+          git config --local user.name "Github Action"
           currentVersion=$(cat pyproject.toml| grep -oP 'version = "\K.*?(?=")')
+          git tag $currentVersion
+          git push
+          
+#       - name: Check Version
+#         run: |
+#           latestVersion=$(curl -s https://pypi.org/pypi/ajaejokes/json | jq -r '.info.version')
+#           currentVersion=$(cat pyproject.toml| grep -oP 'version = "\K.*?(?=")')
 
-          echo "Latest Version: $latestVersion"
-          echo "Current Version: $currentVersion"
+#           echo "Latest Version: $latestVersion"
+#           echo "Current Version: $currentVersion"
           
-          # TODO: Check semver format of currentVersion
-          # Check if current version = latestVersion first. (i.e. more common mistakes)
-          if [[ $latestVersion == $currentVersion ]]; then 
-            echo "$currentVersion is not upgraded"
-            exit 1
-          fi
+#           # TODO: Check semver format of currentVersion
+#           # Check if current version = latestVersion first. (i.e. more common mistakes)
+#           if [[ $latestVersion == $currentVersion ]]; then 
+#             echo "$currentVersion is not upgraded"
+#             exit 1
+#           fi
           
-          releases=$(curl -s https://pypi.org/pypi/ajaejokes/json | jq -cr '.releases | keys | .[]')
-          for release in ${releases[@]}; do
-            if [[ $release == $currentVersion ]]; then
-              echo "$currentVersion already exists"
-              exit 1
-            fi
-          done
+#           releases=$(curl -s https://pypi.org/pypi/ajaejokes/json | jq -cr '.releases | keys | .[]')
+#           for release in ${releases[@]}; do
+#             if [[ $release == $currentVersion ]]; then
+#               echo "$currentVersion already exists"
+#               exit 1
+#             fi
+#           done
 
-      - id: setup-python
-        name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
+#       - id: setup-python
+#         name: Setup Python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: ${{ env.PYTHON_VERSION }}
       
-      - name: Cache Poetry
-        uses: actions/cache@v2
-        with:
-          path: ~/.local
-          key: poetry-${{ env.POETRY_VERSION }}-0
+#       - name: Cache Poetry
+#         uses: actions/cache@v2
+#         with:
+#           path: ~/.local
+#           key: poetry-${{ env.POETRY_VERSION }}-0
       
-      - name: Setup Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+#       - name: Setup Poetry
+#         uses: snok/install-poetry@v1
+#         with:
+#           version: ${{ env.POETRY_VERSION }}
+#           virtualenvs-create: true
+#           virtualenvs-in-project: true
       
-      - id: cache-python-dependencies
-        name: Cache Python Dependencies
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+#       - id: cache-python-dependencies
+#         name: Cache Python Dependencies
+#         uses: actions/cache@v2
+#         with:
+#           path: .venv
+#           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
           
-      - name: Install Python Dependencies
-        if: steps.cache-python-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
+#       - name: Install Python Dependencies
+#         if: steps.cache-python-dependencies.outputs.cache-hit != 'true'
+#         run: poetry install --no-interaction --no-root
       
-      - name: Build Package
-        if: github.ref == 'ref/head/master'
-        run: poetry build
+#       - name: Build Package
+#         if: github.ref == 'ref/head/master'
+#         run: poetry build
       
-      - name: Publish Package
-        if: github.ref == 'ref/head/master'
-        run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          poetry publish
+#       - name: Publish Package
+#         if: github.ref == 'ref/head/master'
+#         run: |
+#           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+#           poetry publish
