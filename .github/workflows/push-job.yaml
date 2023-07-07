@@ -20,7 +20,7 @@ jobs:
           git config --local user.name "Github Action"
           currentVersion=$(cat pyproject.toml| grep -oP 'version = "\K.*?(?=")')
           git tag $currentVersion
-          git push
+          git push --tag
           
 #       - name: Check Version
 #         run: |
