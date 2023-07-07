@@ -59,17 +59,16 @@ jobs:
         run: | 
           git config --local user.name "Github Action"
 
-          tag=$(bash scripts/check_tag.sh)
+          bash scripts/check_tag.sh
           if [[ ! $? == 0 ]]; then exit 1; fi
 
           bash scripts/check_semver.sh $tag
           semver=$([[ $? == 0 ]] && echo 1)
           echo "SEMVER=$semver" >> $GITHUB_OUTPUT
 
-          bash scripts/get_release_tag.sh
-          if [[ ! $? == 0 ]]; then exit 1; fi
-
+          tag=$(bash scripts/get_release_tag.sh)
           echo "Creating new release: $tag"
+          
           gh release create $tag \
             --generate-notes \
             --title "Release: $tag"
