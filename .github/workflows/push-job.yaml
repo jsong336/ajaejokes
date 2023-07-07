@@ -75,8 +75,8 @@ jobs:
             --title "Release: $tag"
             ${semver:+--prerelease}
           
-      - name: Publish Package
-        # if: github.ref == 'ref/head/master' && steps.create-release.outputs.semver == 1
-        run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          poetry publish
+      # - name: Publish Package
+      #   # if: github.ref == 'ref/head/master' && steps.create-release.outputs.semver == 1
+      #   run: |
+      #     poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+      #     poetry publish
