@@ -59,7 +59,7 @@ jobs:
         run: | 
           git config --local user.name "Github Action"
 
-          tag=$(bash sciprts/check_tag.sh)
+          tag=$(bash scripts/check_tag.sh)
           if [[ ! $? == 0 ]]; then exit 1; fi
 
           bash scripts/check_semver.sh $tag
