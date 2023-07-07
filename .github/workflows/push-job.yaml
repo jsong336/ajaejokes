@@ -19,7 +19,7 @@ jobs:
           git config --local user.name "Github Action"
           tag=$(cat pyproject.toml| grep -oP 'version = "\K.*?(?=")')
           gh release create $tag \
-            --note "this is test release" \
+            --notes "this is test release" \
             --title "Release: $tag"
           
 #       - name: Check Version
