@@ -1,0 +1,81 @@
+name: CI/CD on push 
+on: 
+  push: 
+    branches:
+    - master
+    - development
+    - feat/implement-ci-cd-pipeline
+env:
+  POETRY_VERSION: 1.5.1
+  PYTHON_VERSION: '3.10'
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  release:
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+              
+      - name: Check Version
+        run: bash scripts/check_pypi_version.sh
+
+      - id: setup-python
+        name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Cache Poetry
+        uses: actions/cache@v2
+        with:
+          path: ~/.local
+          key: poetry-${{ env.POETRY_VERSION }}-0
+      
+      - name: Setup Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - id: cache-python-dependencies
+        name: Cache Python Dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          
+      - name: Install Python Dependencies
+        if: steps.cache-python-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+      
+      - name: Build Package
+        # if: github.ref == 'ref/head/master'
+        run: poetry build
+      
+      - id: create-release
+        name: Create Release
+        # if: github.ref == 'ref/head/master'
+        run: | 
+          git config --local user.name "Github Action"
+
+          bash scripts/check_tag.sh
+          if [[ ! $? == 0 ]]; then exit 1; fi
+
+          bash scripts/check_semver.sh $tag
+          semver=$([[ $? == 0 ]] && echo 1)
+          echo "SEMVER=$semver" >> $GITHUB_OUTPUT
+
+          tag=$(bash scripts/get_release_tag.sh)
+          echo "Creating new release: $tag"
+          
+          gh release create $tag \
+            --generate-notes \
+            --title "Release: $tag"
+            ${semver:+--prerelease}
+          
+      # - name: Publish Package
+      #   # if: github.ref == 'ref/head/master' && steps.create-release.outputs.semver == 1
+      #   run: |
+      #     poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+      #     poetry publish
